@@ -31,16 +31,16 @@ class MainActivity : AppCompatActivity() {
     )
 
     private val recordingFilePath: String by lazy {
-        "${externalCacheDir?.absolutePath}/recording.3gp"
+        "${externalCacheDir?.absolutePath}/recording.3gp" // 따로 녹음 파일을 저장하지 않기 때문에 캐시를 사용
     }
 
     private var recorder: MediaRecorder? = null
     private var player: MediaPlayer? = null
     private var state = State.BEFORE_RECORDING
-        set(value) {
+        set(value) { // java의 setter와 비슷한 역할
             field = value
             resetButton.isEnabled = (value == State.AFTER_RECORDING) ||
-                    (value == State.ON_PLAYING)
+                    (value == State.ON_PLAYING) // 두 상태에 따른 리셋 버튼 활성화 설정
             recordButton.updateIconWithState(value)
         }
 
@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity() {
         initVariables()
     }
 
-    override fun onRequestPermissionsResult(
+    override fun onRequestPermissionsResult( // 요청한 권한에 대한 결과
         requestCode: Int,
         permissions: Array<out String>,
         grantResults: IntArray
@@ -64,24 +64,24 @@ class MainActivity : AppCompatActivity() {
         val audioRecordPermissionGranted = requestCode == REQUEST_RECORD_AUDIO_PERMISSION &&
                 grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED
 
-        if (!audioRecordPermissionGranted) {
-            finish()
+        if (!audioRecordPermissionGranted) { // 위 두 조건이 충족되지 않았다면
+            finish() // 앱 종료
         }
     }
 
-    private fun requestAudioPermission() {
+    private fun requestAudioPermission() { // 권한 요청 메서드
         requestPermissions(requiredPermissions, REQUEST_RECORD_AUDIO_PERMISSION)
     }
 
-    private fun initViews() {
+    private fun initViews() { // 초기 녹음 상태 값 설정
         recordButton.updateIconWithState(state)
     }
 
     private fun bindViews() {
         soundVisualizerView.onRequestCurrentAmplitude = {
-            recorder?.maxAmplitude ?: 0
+            recorder?.maxAmplitude ?: 0 // recorder의 최댓값을 SoundVisualizerView의 onRequestCurrentAmplitude로 전달.
         }
-        resetButton.setOnClickListener {
+        resetButton.setOnClickListener { // 초기화
             stopPlaying()
             soundVisualizerView.clearVisualization()
             recordTimeTextView.clearCountTime()
@@ -105,7 +105,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun initVariables() {
+    private fun initVariables() { // 위의 초기화된 state를 호출
         state = State.BEFORE_RECORDING
     }
 
@@ -141,7 +141,7 @@ class MainActivity : AppCompatActivity() {
                 setDataSource(recordingFilePath)
                 prepare()
             }
-        player?.setOnCompletionListener {
+        player?.setOnCompletionListener { // 현재 전달된 파일을 모두 재생했을 때,
             stopPlaying()
             state = State.AFTER_RECORDING
         }
@@ -152,7 +152,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun stopPlaying() {
-        player?.release()
+        player?.release() // release의 경우 End 상태로 도달하기 때문에 굳이 stop을 사용할 필요가 없음
         player = null
         soundVisualizerView.stopVisualizing()
         recordTimeTextView.stopCountUp()

@@ -1,5 +1,6 @@
 package com.example.practicekotlin7
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.CountDownTimer
 import android.os.SystemClock
@@ -18,7 +19,10 @@ class CountUpView(
             val currentTimeStamp = SystemClock.elapsedRealtime()
 
             val countTimeSeconds = ((currentTimeStamp - startTimeStamp) / 1000L).toInt()
-            updateCountTime(countTimeSeconds)
+            /*
+            (1초마다 갱신된 시간 - 스레드 시작 시간) -> 현재 흐른 시간
+             */
+            updateCountTime(countTimeSeconds) // 분과 초로 변환
 
             handler?.postDelayed(this, 1000L)
         }
@@ -26,17 +30,18 @@ class CountUpView(
 
     fun startCountUp() {
         startTimeStamp = SystemClock.elapsedRealtime()
-        handler?.post(countUpAction)
+        handler?.post(countUpAction) // 스레드 시작
     }
 
     fun stopCountUp() {
-        handler?.removeCallbacks(countUpAction)
+        handler?.removeCallbacks(countUpAction) // 스레드 중단
     }
 
     fun clearCountTime() {
         updateCountTime(0)
     }
 
+    @SuppressLint("SetTextI18n")
     private fun updateCountTime(countTimeSeconds: Int) {
         val minutes = countTimeSeconds / 60
         val seconds = countTimeSeconds % 60
